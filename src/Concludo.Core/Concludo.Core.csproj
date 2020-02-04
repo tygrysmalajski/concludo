@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="IFailure.cs" />
+    <Content Include="Rule.cs" />
+    <Content Include="Result.cs" />
+    <Content Include="ResultExtensions.cs" />
+  </ItemGroup>
+</Project>
