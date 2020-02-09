@@ -8,5 +8,8 @@
     <Content Include="Rule.cs" />
     <Content Include="Result.cs" />
     <Content Include="ResultExtensions.cs" />
+    <Content Include="FuncExtensions.cs" />
+    <Content Include="EnumerableExtensions.cs" />
+    <Content Include="SummaryResult.cs" />
   </ItemGroup>
 </Project>

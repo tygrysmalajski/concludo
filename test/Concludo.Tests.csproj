@@ -11,7 +11,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\src\Concludo.Core\Concludo.Core.csproj" />
-    <Content Include="Result\MonadLawsTests.cs" />
     <Content Include="ValidationTests.cs" />
+    <Content Include="ResultTests.cs" />
   </ItemGroup>
 </Project>

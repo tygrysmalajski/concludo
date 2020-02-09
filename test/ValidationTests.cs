@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using NUnit.Framework;
 using Concludo.Core;
 
@@ -39,17 +38,17 @@ namespace Concludo.Tests
                     streetRequired,
                     nameof(Person.Address)));
 
-            Result<IEnumerable<string>, Person> personValidation(params Person[] persons)
-                => new[]
+            SummaryResult<string, Person> validatePerson(Person person)
+                => new []
                 {
                     nameRequired,
                     addressValidation
                 }
-                .Apply(persons)
-                .Sequence();
+                .Apply(person)
+                .Reduce();
 
             var person = new Person() { Name = "", Address = new Address() };
-            var result = personValidation(person);
+            var result = validatePerson(person);
 
             TestContext.Out.WriteLine(result.Print());
             Assert.That(result.IsSuccess, Is.False);

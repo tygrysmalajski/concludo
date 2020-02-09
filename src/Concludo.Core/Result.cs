@@ -1,15 +1,17 @@
 using System;
+using static Concludo.Core.FuncExtensions;
 
 namespace Concludo.Core
 {
-    public struct Result<TFailure, TSuccess> : IEquatable<Result<TFailure, TSuccess>>
+    public class Result<TFailure, TSuccess> : IEquatable<Result<TFailure, TSuccess>>
     {
-        private Result(TSuccess value)
+        protected Result(TSuccess value)
         {
             Value = value;
             Error = default;
         }
-        private Result(TFailure error)
+
+        protected Result(TFailure error)
         {
             Value = default;
             Error = error;
@@ -43,22 +45,33 @@ namespace Concludo.Core
 
     public static class Result
     {
-        public static Result<string, TSubject> Return<TSubject>(
-            TSubject x)
-            => Result<string, TSubject>.Success(x);
+        public static Result<TFailure, TSuccess> Return<TFailure, TSuccess>(
+            TSuccess x)
+            => Result<TFailure, TSuccess>.Success(x);
 
-        public static Result<TFailure, TSuccess2> Map<TFailure, TSuccess1, TSuccess2>(
-           this Func<TSuccess1, TSuccess2> f,
-           Result<TFailure, TSuccess1> x)
-           => !x.IsSuccess
-               ? Result<TFailure, TSuccess2>.Failure(x.Error)
-               : Result<TFailure, TSuccess2>.Success(f(x.Value));
+        public static Result<TFailure2, TSuccess2> Bimap<TFailure1, TFailure2, TSuccess1, TSuccess2>(
+            this Result<TFailure1, TSuccess1> x,
+            Func<TFailure1, TFailure2> fFailure,
+            Func<TSuccess1, TSuccess2> fSuccess)
+            => !x.IsSuccess
+                ? Result<TFailure2, TSuccess2>.Failure(fFailure(x.Error))
+                : Result<TFailure2, TSuccess2>.Success(fSuccess(x.Value));
+
+        public static Result<TFailure, TSuccess2> MapSuccess<TFailure, TSuccess1, TSuccess2>(
+            this Result<TFailure, TSuccess1> x,
+            Func<TSuccess1, TSuccess2> f)
+            => x.Bimap(Id, f);
+
+        public static Result<TFailure2, TSuccess> MapFailure<TFailure1, TFailure2, TSuccess>(
+            this Result<TFailure1, TSuccess> x,
+            Func<TFailure1, TFailure2> f)
+            => x.Bimap(f, Id);
 
         public static Result<TFailure, TSuccess2> Bind<TFailure, TSuccess1, TSuccess2>(
-            this Result<TFailure, TSuccess1> x,
-            Func<TSuccess1, Result<TFailure, TSuccess2>> f)
-            => !x.IsSuccess 
-                ? Result<TFailure, TSuccess2>.Failure(x.Error)
-                : f(x.Value);
+            this Result<TFailure, TSuccess1> mx,
+            Func<TSuccess1, Result<TFailure, TSuccess2>> mf)
+            => !mx.IsSuccess 
+                ? Result<TFailure, TSuccess2>.Failure(mx.Error)
+                : mf(mx.Value);
     }
 }

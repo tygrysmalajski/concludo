@@ -11,32 +11,28 @@ namespace Concludo.Core
         public static Rule<TSubject> Required<TSubject>(
             Func<TSubject, bool> predicate,
             string error)
-            => value =>
-                predicate(value)
-                    ? Result<string, TSubject>.Success(value)
+            => subject =>
+                predicate(subject)
+                    ? Result<string, TSubject>.Success(subject)
                     : Result<string, TSubject>.Failure(error);
 
         public static Rule<TSubject> Compose<TSubject, TSubjectProp>(
             Func<TSubject, TSubjectProp> propertyOf,
             Rule<TSubjectProp> rule,
-            string error)
-            => subject =>
-            {
-                var result = rule(propertyOf(subject));
-                return result.IsSuccess
-                    ? Result<string, TSubject>.Success(subject)
-                    : Result<string, TSubject>.Failure(
-                        new StringFailure(error)
-                            .Combine(new StringFailure(result.Error))
-                            .Value);
-            };
+            string outerError)
+            => subject 
+                => rule(propertyOf(subject))
+                    .Bimap(innerError 
+                        => new StringFailure(outerError)
+                            .Combine(new StringFailure(innerError))
+                            .Value, _
+                        => subject);
 
         public static IEnumerable<Result<string, TSubject>> Apply<TSubject>(
-            this IEnumerable<Rule<TSubject>> rules,
-            IEnumerable<TSubject> subjects)
-            => rules.SelectMany(rule
-                => subjects.Select(subject
-                    => rule(subject)));
+            this Rule<TSubject>[] rules,
+            TSubject subject)
+            => rules.Select(rule
+                => rule(subject));
 
         /// <summary>
         /// Kleisli composition: (a -> m b) -> (b -> m c) -> (a -> m c)

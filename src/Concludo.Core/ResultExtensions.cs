@@ -6,19 +6,6 @@ namespace Concludo.Core
 {
     public static class ResultExtensions
     {
-        public static Result<IEnumerable<TFailure>, TSuccess> Sequence<TFailure, TSuccess>(
-            this IEnumerable<Result<TFailure, TSuccess>> results)
-        {
-            var errors = results
-                .Where(r => !r.IsSuccess)
-                .Select(r => r.Error);
-
-            return errors.Any()
-                ? Result<IEnumerable<TFailure>, TSuccess>.Failure(errors)
-                : Result<IEnumerable<TFailure>, TSuccess>.Success(
-                    results.First(r => r.IsSuccess).Value);
-        }
-
         public static string Print<TFailure, TSuccess>(
             this Result<TFailure, TSuccess> result)
             => result.Print(FormatError);
@@ -41,6 +28,7 @@ namespace Concludo.Core
             string PrintResult(string @case, string value)
                 => $"{nameof(Result)}<{typeof(TSuccess).Name}> ({@case} [{value}])";
         }
+        
         private static string FormatError<TFailure>(
             TFailure error)
             => $"\"{error}\"";
